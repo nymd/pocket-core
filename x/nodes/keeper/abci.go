@@ -38,7 +38,7 @@ func BeginBlocker(ctx sdk.Ctx, req abci.RequestBeginBlock, k Keeper) {
 		switch evidence.Type {
 		case tmtypes.ABCIEvidenceTypeDuplicateVote:
 			if ctx.IsAfterUpgradeHeight() {
-				evidenceAgeInBlocks := int(k.GetParams(ctx).MaxEvidenceAge.Minutes()) / 15
+				evidenceAgeInBlocks := int(k.MaxEvidenceAge(ctx).Minutes()) / 15
 				if evidenceAgeInBlocks == 0 {
 					// minimum of 1 block ago
 					evidenceAgeInBlocks = 1
