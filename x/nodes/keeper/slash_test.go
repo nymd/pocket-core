@@ -78,7 +78,7 @@ func TestHandleValidatorSignature(t *testing.T) {
 					signingInfo.MissedBlocksCounter = test.args.maxMissed
 				}
 				keeper.SetValidatorSigningInfo(context, sdk.Address(cryptoAddr), signingInfo)
-				keeper.handleValidatorSignature(context, sdk.Address(cryptoAddr), test.args.power, test.args.signed)
+				keeper.handleValidatorSignature(context, sdk.Address(cryptoAddr), test.args.power, test.args.signed, 0, 0)
 				signedInfo, found := keeper.GetValidatorSigningInfo(context, sdk.Address(cryptoAddr))
 				if !found {
 					t.FailNow()

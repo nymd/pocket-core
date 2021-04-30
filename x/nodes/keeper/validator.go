@@ -52,7 +52,7 @@ func (k Keeper) SetValidator(ctx sdk.Ctx, validator types.Validator) {
 	_ = k.validatorCache.AddWithCtx(ctx, validator.Address.String(), validator)
 }
 
-func (k Keeper) SetValidators(ctx sdk.Ctx, validators types.Validators){
+func (k Keeper) SetValidators(ctx sdk.Ctx, validators types.Validators) {
 	for _, val := range validators {
 		k.SetValidator(ctx, val)
 	}

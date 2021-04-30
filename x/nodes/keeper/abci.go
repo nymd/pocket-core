@@ -25,8 +25,10 @@ func BeginBlocker(ctx sdk.Ctx, req abci.RequestBeginBlock, k Keeper) {
 	// Iterate over all the validators which *should* have signed this block
 	// store whether or not they have actually signed it and slash/unstake any
 	// which have missed too many blocks in a row (downtime slashing)
+	minSignedPerWindow := k.MinSignedPerWindow(ctx)
+	signedBlocksWindow := k.SignedBlocksWindow(ctx)
 	for _, voteInfo := range req.LastCommitInfo.GetVotes() {
-		k.handleValidatorSignature(ctx, voteInfo.Validator.Address, voteInfo.Validator.Power, voteInfo.SignedLastBlock)
+		k.handleValidatorSignature(ctx, voteInfo.Validator.Address, voteInfo.Validator.Power, voteInfo.SignedLastBlock, signedBlocksWindow, minSignedPerWindow)
 		// remove those who are part of the tendermint validator set (jailed validators will never be a part of the set)
 	}
 	// Iterate through any newly discovered evidence of infraction

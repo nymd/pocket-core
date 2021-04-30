@@ -26,9 +26,9 @@ var ( // Keys for store prefixes
 	PrevStateValidatorsPowerKey     = []byte{0x31} // prefix for the key to the validators of the prevState state
 	PrevStateTotalPowerKey          = []byte{0x32} // prefix for the total power of the prevState state
 	UnstakingValidatorsKey          = []byte{0x41} // prefix for unstaking validator
+	WaitingToBeginUnstakingKey      = []byte{0x43} // prefix for waiting validators
 	AwardValidatorKey               = []byte{0x51} // prefix for awarding validators
 	BurnValidatorKey                = []byte{0x52} // prefix for awarding validators
-	WaitingToBeginUnstakingKey      = []byte{0x43} // prefix for waiting validators
 )
 
 func KeyForValidatorByNetworkID(addr sdk.Address, networkID []byte) []byte {
