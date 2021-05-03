@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"time"
 
 	sdk "github.com/pokt-network/pocket-core/types"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -14,6 +15,8 @@ import (
 // 3) set new proposer
 // 4) check block sigs and byzantine evidence to slash
 func BeginBlocker(ctx sdk.Ctx, req abci.RequestBeginBlock, k Keeper) {
+	defer sdk.TimeTrack(time.Now())
+
 	// reward the proposer with fees
 	if ctx.BlockHeight() > 1 {
 		previousProposer := k.GetPreviousProposer(ctx)
@@ -59,6 +62,7 @@ func BeginBlocker(ctx sdk.Ctx, req abci.RequestBeginBlock, k Keeper) {
 
 // EndBlocker - Called at the end of every block, update validator set
 func EndBlocker(ctx sdk.Ctx, k Keeper) []abci.ValidatorUpdate {
+	defer sdk.TimeTrack(time.Now())
 	// increment jailed blocks counter
 	k.IncrementJailedValidators(ctx)
 	// NOTE: UpdateTendermintValidators has to come before unstakeAllMatureValidators.

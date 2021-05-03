@@ -24,6 +24,7 @@ type Keeper struct {
 	codespace sdk.CodespaceType
 	// Cache
 	validatorCache *sdk.Cache
+	sigInfoCache   *sdk.Cache
 }
 
 // NewKeeper creates a new staking Keeper instance
@@ -34,6 +35,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, accountKeeper types.AuthKeepe
 		log2.Fatal(fmt.Errorf("%s module account has not been set", types.StakedPoolName))
 	}
 	cache := sdk.NewCache(int(types.ValidatorCacheSize))
+	sinfoCache := sdk.NewCache(int(types.SinfoCacheSize))
 
 	return Keeper{
 		storeKey:       key,
@@ -42,6 +44,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, accountKeeper types.AuthKeepe
 		codespace:      codespace,
 		validatorCache: cache,
 		Cdc:            cdc,
+		sigInfoCache:   sinfoCache,
 	}
 }
 

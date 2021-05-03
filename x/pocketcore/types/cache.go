@@ -3,13 +3,12 @@ package types
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/tendermint/tendermint/config"
-	"log"
-	"sync"
-
 	sdk "github.com/pokt-network/pocket-core/types"
+	"github.com/tendermint/tendermint/config"
 	db "github.com/tendermint/tm-db"
 	"github.com/willf/bloom"
+	"log"
+	"sync"
 )
 
 var (

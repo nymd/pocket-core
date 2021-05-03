@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"bytes"
+	"fmt"
 	sdk "github.com/pokt-network/pocket-core/types"
 	"github.com/pokt-network/pocket-core/x/nodes/exported"
 	"github.com/pokt-network/pocket-core/x/nodes/types"
@@ -80,6 +81,39 @@ func (k Keeper) GetAllValidators(ctx sdk.Ctx) (validators []types.Validator) {
 		}
 		validators = append(validators, validator)
 	}
+	return validators
+}
+
+// GetAllValidators - Retrieve set of all validators with no limits from the main store
+func (k Keeper) GetAllJailedValidators(ctx sdk.Ctx) (validators []types.Validator) {
+	if k.validatorCache.Len() >= len(k.GetAllValidatorsAddrs(ctx)) {
+		validators = make([]types.Validator, 0)
+		for _, key := range k.validatorCache.Keys() {
+			addr, _ := sdk.AddressFromHex(fmt.Sprintf("%v", key))
+			val, _ := k.GetValidator(ctx, addr)
+			if val.IsJailed() {
+				validators = append(validators, val)
+			}
+		}
+	} else {
+		validators = make([]types.Validator, 0)
+		store := ctx.KVStore(k.storeKey)
+		iterator, _ := sdk.KVStorePrefixIterator(store, types.AllValidatorsKey)
+		defer iterator.Close()
+		for ; iterator.Valid(); iterator.Next() {
+			validator, err := types.UnmarshalValidator(k.Cdc, ctx, iterator.Value())
+			if err != nil {
+				ctx.Logger().Error("can't get validator in GetAllJailedValidators: " + err.Error())
+				continue
+			}
+			k.validatorCache.AddWithCtx(ctx, validator.Address.String(), validator)
+
+			if validator.IsJailed() {
+				validators = append(validators, validator)
+			}
+		}
+	}
+
 	return validators
 }
 

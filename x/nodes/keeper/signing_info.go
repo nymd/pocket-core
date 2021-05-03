@@ -8,6 +8,10 @@ import (
 
 // GetValidatorSigningInfo - Retrieve signing information for the validator by address
 func (k Keeper) GetValidatorSigningInfo(ctx sdk.Ctx, addr sdk.Address) (info types.ValidatorSigningInfo, found bool) {
+	val, found := k.sigInfoCache.GetWithCtx(ctx, addr.String())
+	if found {
+		return val.(types.ValidatorSigningInfo), found
+	}
 	store := ctx.KVStore(k.storeKey)
 	bz, _ := store.Get(types.KeyForValidatorSigningInfo(addr))
 	if bz == nil {
@@ -16,6 +20,7 @@ func (k Keeper) GetValidatorSigningInfo(ctx sdk.Ctx, addr sdk.Address) (info typ
 	}
 	_ = k.Cdc.UnmarshalBinaryLengthPrefixed(bz, &info, ctx.BlockHeight())
 	found = true
+	_ = k.sigInfoCache.AddWithCtx(ctx, addr.String(), info)
 	return
 }
 
@@ -24,6 +29,7 @@ func (k Keeper) SetValidatorSigningInfo(ctx sdk.Ctx, addr sdk.Address, info type
 	store := ctx.KVStore(k.storeKey)
 	bz, _ := k.Cdc.MarshalBinaryLengthPrefixed(&info, ctx.BlockHeight())
 	_ = store.Set(types.KeyForValidatorSigningInfo(addr), bz)
+	_ = k.sigInfoCache.AddWithCtx(ctx, addr.String(), info)
 }
 
 func (k Keeper) SetValidatorSigningInfos(ctx sdk.Ctx, infos []types.ValidatorSigningInfo) {
@@ -35,6 +41,8 @@ func (k Keeper) SetValidatorSigningInfos(ctx sdk.Ctx, infos []types.ValidatorSig
 func (k Keeper) DeleteValidatorSigningInfo(ctx sdk.Ctx, addr sdk.Address) {
 	store := ctx.KVStore(k.storeKey)
 	_ = store.Delete(types.KeyForValidatorSigningInfo(addr))
+	k.sigInfoCache.RemoveWithCtx(ctx, addr.String())
+
 }
 
 func (k Keeper) ResetValidatorSigningInfo(ctx sdk.Ctx, addr sdk.Address) {

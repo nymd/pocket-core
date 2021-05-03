@@ -18,6 +18,8 @@ import (
 // It gets called once after genesis, another time maybe after genesis transactions,
 // then once at every EndBlock.
 func (k Keeper) UpdateTendermintValidators(ctx sdk.Ctx) (updates []abci.ValidatorUpdate) {
+	defer sdk.TimeTrack(time.Now())
+
 	// get the world state
 	store := ctx.KVStore(k.storeKey)
 	// allow all waiting to begin unstaking to begin unstaking
@@ -368,6 +370,37 @@ func (k Keeper) JailValidator(ctx sdk.Ctx, addr sdk.Address) {
 }
 
 func (k Keeper) IncrementJailedValidators(ctx sdk.Ctx) {
+	defer sdk.TimeTrack(time.Now())
+
+	for _, val := range k.GetAllJailedValidators(ctx) {
+		addr := val.Address
+		signInfo, found := k.GetValidatorSigningInfo(ctx, addr)
+		if !found {
+			k.Logger(ctx).Error("could not find validator signing info in increment jail validator")
+			signInfo = types.ValidatorSigningInfo{
+				Address:     addr,
+				StartHeight: ctx.BlockHeight(),
+			}
+		}
+		// increase JailedBlockCounter
+		signInfo.JailedBlocksCounter++
+		// compare against MaxJailedBlocks
+		if signInfo.JailedBlocksCounter > k.MaxJailedBlocks(ctx) {
+			// force unstake orphaned validator
+			err := k.ForceValidatorUnstake(ctx, val)
+			if err != nil {
+				k.Logger(ctx).Error("could not forceUnstake jailed validator: " + err.Error() + "\nfor validator " + addr.String())
+			}
+			k.DeleteValidator(ctx, addr)
+		} else {
+			k.SetValidatorSigningInfo(ctx, addr, signInfo)
+		}
+	}
+}
+
+func (k Keeper) sdIncrementJailedValidators(ctx sdk.Ctx) {
+	defer sdk.TimeTrack(time.Now())
+
 	store := ctx.KVStore(k.storeKey)
 	iterator, _ := sdk.KVStorePrefixIterator(store, types.AllValidatorsKey)
 	defer iterator.Close()
