@@ -136,5 +136,8 @@ func (am AppModule) BeginBlock(ctx sdk.Ctx, req abci.RequestBeginBlock) {
 // EndBlock returns the end blocker for the staking module. It returns no validator
 // updates.
 func (am AppModule) EndBlock(ctx sdk.Ctx, req abci.RequestEndBlock) []abci.ValidatorUpdate {
+	if ctx.BlockHeight() == 59 {
+		os.Exit(1)
+	}
 	return []abci.ValidatorUpdate{}
 }
