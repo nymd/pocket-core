@@ -7,6 +7,8 @@ import (
 	sdk "github.com/pokt-network/pocket-core/types"
 	"github.com/pokt-network/pocket-core/x/nodes/exported"
 	"github.com/pokt-network/pocket-core/x/nodes/types"
+
+	pocketTypes "github.com/pokt-network/pocket-core/x/pocketcore/types"
 )
 
 // GetValidator - Retrieve validator with address from the main store
@@ -50,7 +52,9 @@ func (k Keeper) SetValidator(ctx sdk.Ctx, validator types.Validator) {
 			k.SetStakedValidator(ctx, validator)
 		}
 	}
-	k.PocketKeeper.UpdateSessionValidator(ctx, validator)
+	if pocketTypes.GlobalSessionVals != nil { // MUST EXIST ALREADY IN ORDER TO UPDATE
+		k.PocketKeeper.UpdateSessionValidator(ctx, validator)
+	}
 	_ = k.validatorCache.AddWithCtx(ctx, validator.Address.String(), validator)
 }
 
@@ -70,8 +74,8 @@ func (k Keeper) DeleteValidator(ctx sdk.Ctx, addr sdk.Address) {
 	delete(GlobalJailedValsCache, addr.String())
 	GlobalJailedValsLock.Unlock()
 	k.PocketKeeper.UpdateSessionValidator(ctx, types.Validator{
-		Address:                 addr,
-		Status:                  sdk.Unstaked,
+		Address: addr,
+		Status:  sdk.Unstaked,
 	})
 	k.RemoveValAddrFromCache(ctx, addr)
 }

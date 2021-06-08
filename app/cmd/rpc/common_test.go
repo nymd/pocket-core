@@ -185,6 +185,7 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 	}
 	txDB := dbm.NewMemDB()
 	baseapp := creator(c.Logger, db, io.Writer(nil))
+	pocketTypes.GlobalSessionVals = nil
 	tmNode, err := node.NewNode(baseapp,
 		c.TmConfig,
 		0,

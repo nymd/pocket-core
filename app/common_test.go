@@ -2,11 +2,12 @@ package app
 
 import (
 	"context"
-	"github.com/tendermint/tendermint/privval"
 	"io"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/tendermint/tendermint/privval"
 
 	types2 "github.com/pokt-network/pocket-core/codec/types"
 	pocketTypes "github.com/pokt-network/pocket-core/x/pocketcore/types"
@@ -99,7 +100,7 @@ func NewInMemoryTendermintNodeAmino(t *testing.T, genesisState []byte) (tendermi
 		if err != nil {
 			panic(err)
 		}
-		time.Sleep(2*time.Second)
+		time.Sleep(2 * time.Second)
 	}
 	return
 }
@@ -149,7 +150,7 @@ func NewInMemoryTendermintNodeProto(t *testing.T, genesisState []byte) (tendermi
 		if err != nil {
 			panic(err)
 		}
-		time.Sleep(2*time.Second)
+		time.Sleep(2 * time.Second)
 	}
 	return
 }
@@ -246,6 +247,7 @@ func inMemTendermintNode(genesisState []byte) (*node.Node, keys.Keybase) {
 	}
 	app := GetApp(c.Logger, db, traceWriter)
 	txDB := dbm.NewMemDB()
+	pocketTypes.GlobalSessionVals = nil // make sure always nil for testing
 	tmNode, err := node.NewNode(app.BaseApp,
 		c.TmConfig,
 		0,
@@ -754,6 +756,7 @@ func fiveValidatorsOneAppGenesis() (genBz []byte, keys []crypto.PrivateKey, vali
 	j, _ := memCodec().MarshalJSONIndent(defaultGenesis, "", "    ")
 	return j, kys, posGenesisState.Validators, appsGenesisState.Applications[0]
 }
+
 //
 //func TestGatewayChecker(t *testing.T) {
 //	startheight := 14681
