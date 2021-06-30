@@ -231,6 +231,11 @@ func (k Keeper) EditStakeValidator(ctx sdk.Ctx, currentValidator, updatedValidat
 	k.SetValidator(ctx, currentValidator)
 	// save the validator by chains
 	k.SetStakedValidatorByChains(ctx, currentValidator)
+	if currentValidator.Jailed {
+		GlobalJailedValsLock.Lock()
+		defer GlobalJailedValsLock.Unlock()
+		GlobalJailedValsCache[currentValidator.Address.String()] = struct{}{}
+	}
 	// clear cache
 	k.PocketKeeper.ClearSessionCache()
 	// log success
