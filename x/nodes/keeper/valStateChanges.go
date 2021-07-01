@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"github.com/pokt-network/pocket-core/codec"
 	"github.com/tendermint/tendermint/libs/strings"
 	"time"
 
@@ -230,7 +231,7 @@ func (k Keeper) EditStakeValidator(ctx sdk.Ctx, currentValidator, updatedValidat
 	// save the validator by chains
 	k.SetStakedValidatorByChains(ctx, currentValidator)
 	// patch for june 30 fork
-	if ctx.BlockHeight() >= 30040 {
+	if ctx.BlockHeight() >= codec.UpgradeHeight {
 		// reset signing info
 		k.ResetValidatorSigningInfo(ctx, currentValidator.Address)
 	}
