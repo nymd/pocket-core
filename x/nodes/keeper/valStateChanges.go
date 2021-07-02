@@ -236,7 +236,10 @@ func (k Keeper) EditStakeValidator(ctx sdk.Ctx, currentValidator, updatedValidat
 		defer GlobalJailedValsLock.Unlock()
 		GlobalJailedValsCache[currentValidator.Address.String()] = struct{}{}
 	}
-	k.ResetValidatorSigningInfo(ctx, currentValidator.Address)
+	if ctx.BlockHeight() >= 30040 {
+		// reset signing info
+		k.ResetValidatorSigningInfo(ctx, currentValidator.Address)
+	}
 	// clear cache
 	k.PocketKeeper.ClearSessionCache()
 	// log success

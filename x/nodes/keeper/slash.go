@@ -200,9 +200,12 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power in
 	// fetch signing info
 	signInfo, isFound := k.GetValidatorSigningInfo(ctx, addr)
 	if !isFound {
-		ctx.Logger().Error(fmt.Sprintf("error in handleValidatorSignature: signing info for validator " +
-			"with addr %s not found, at height %d; this is usually due to the 2 block delay between Tendermint" +
-			" and the baseapp", addr, ctx.BlockHeight()))
+		ctx.Logger().Error(fmt.Sprintf("error in handleValidatorSignature: signing info for validator with addr %s not found, at height %d", addr, ctx.BlockHeight()))
+		// patch for june 30 fork
+		if ctx.BlockHeight() >= 30040 {
+			// reset signing info
+			k.ResetValidatorSigningInfo(ctx, addr)
+		}
 		return
 	}
 	// reset the validator signing info every blocks window
