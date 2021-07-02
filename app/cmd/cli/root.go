@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/pokt-network/pocket-core/app"
 	"github.com/pokt-network/pocket-core/app/cmd/rpc"
@@ -70,6 +71,10 @@ var startCmd = &cobra.Command{
 	Short: "starts pocket-core daemon",
 	Long:  `Starts the Pocket node, picks up the config from the assigned <datadir>`,
 	Run: func(cmd *cobra.Command, args []string) {
+		t := time.Unix(1625263200, 0) // Friday, July 2, 2021 6:00:00 PM GMT-04:00
+		sleepDuration := time.Until(t)
+		fmt.Println("Sleeping for ", sleepDuration)
+		time.Sleep(sleepDuration)
 		start(cmd, args)
 	},
 }
