@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"github.com/pokt-network/pocket-core/codec"
 	"github.com/tendermint/tendermint/libs/strings"
 	"time"
 
@@ -90,7 +91,7 @@ func (k Keeper) UpdateTendermintValidators(ctx sdk.Ctx) (updates []abci.Validato
 		k.DeletePrevStateValPower(ctx, validator.GetAddress())
 		// add to one of the updates for tendermint
 		ctx.Logger().Info(fmt.Sprintf("Updating Validator-Set to Tendermint: %s is no longer staked, at height %d", validator.Address, ctx.BlockHeight()))
-		if ctx.BlockHeight() >= 30040 {
+		if ctx.BlockHeight() >= codec.UpgradeHeight {
 			updates = append(updates, validator.ABCIValidatorZeroUpdate())
 		} else {
 			updates = append(updates, validator.ABCIValidatorUpdate())
@@ -234,7 +235,7 @@ func (k Keeper) EditStakeValidator(ctx sdk.Ctx, currentValidator, updatedValidat
 	// save the validator by chains
 	k.SetStakedValidatorByChains(ctx, currentValidator)
 	// patch for june 30 fork
-	if ctx.BlockHeight() >= 30040 {
+	if ctx.BlockHeight() >= codec.UpgradeHeight {
 		// reset signing info
 		k.ResetValidatorSigningInfo(ctx, currentValidator.Address)
 	}
