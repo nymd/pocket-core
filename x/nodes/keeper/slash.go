@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"github.com/pokt-network/pocket-core/codec"
 	"time"
 
 	"github.com/pokt-network/pocket-core/x/nodes/exported"
@@ -202,7 +203,7 @@ func (k Keeper) handleValidatorSignature(ctx sdk.Ctx, addr sdk.Address, power in
 	if !isFound {
 		ctx.Logger().Error(fmt.Sprintf("error in handleValidatorSignature: signing info for validator with addr %s not found, at height %d", addr, ctx.BlockHeight()))
 		// patch for june 30 fork
-		if ctx.BlockHeight() >= 30040 {
+		if ctx.BlockHeight() >= codec.UpgradeHeight {
 			// reset signing info
 			k.ResetValidatorSigningInfo(ctx, addr)
 		}
