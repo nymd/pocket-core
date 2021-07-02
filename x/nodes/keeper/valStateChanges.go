@@ -90,7 +90,11 @@ func (k Keeper) UpdateTendermintValidators(ctx sdk.Ctx) (updates []abci.Validato
 		k.DeletePrevStateValPower(ctx, validator.GetAddress())
 		// add to one of the updates for tendermint
 		ctx.Logger().Info(fmt.Sprintf("Updating Validator-Set to Tendermint: %s is no longer staked, at height %d", validator.Address, ctx.BlockHeight()))
-		updates = append(updates, validator.ABCIValidatorZeroUpdate())
+		if ctx.BlockHeight() >= 30040 {
+			updates = append(updates, validator.ABCIValidatorZeroUpdate())
+		} else {
+			updates = append(updates, validator.ABCIValidatorUpdate())
+		}
 		// if validator was force unstaked, delete the validator from the all validators store
 		if validator.IsUnstaked() {
 			k.DeleteValidator(ctx, validator.Address)
