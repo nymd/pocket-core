@@ -33,6 +33,10 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, authKeeper types.AuthKee
 	}
 }
 
+func (k Keeper) Codec() *codec.Codec {
+	return k.Cdc
+}
+
 // "GetBlock" returns the block from the tendermint node at a certain height
 func (k Keeper) GetBlock(height int) (*coretypes.ResultBlock, error) {
 	h := int64(height)
@@ -45,7 +49,7 @@ func (k Keeper) UpgradeCodec(ctx sdk.Ctx) {
 	}
 }
 
-func (k Keeper) ConvertState(ctx sdk.Ctx){
+func (k Keeper) ConvertState(ctx sdk.Ctx) {
 	k.Cdc.SetUpgradeOverride(false)
 	params := k.GetParams(ctx)
 	claims := k.GetAllClaims(ctx)
